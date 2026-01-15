@@ -1,13 +1,13 @@
 from fastapi import FastAPI
-from fastapi import Response
 from fastapi import HTTPException
-from numpy as np
+import numpy as np
+import os
 
 from app.schemas import ChurnFeatures
 from app.model_loader import model
 
 from fastapi import Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -16,16 +16,27 @@ app = FastAPI(title="Customer Churn Prediction API",
               description="An API that predicts customer churn using a pre-trained model.",
               version="1.0.0")
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Handle favicon requests to prevent 404/500 errors"""
+    try:
+        return Response(status_code=204, headers={"Content-Type": "image/x-icon"})
+    except Exception:
+        # Fallback to ensure no errors are raised
+        return Response(status_code=204)
+
+
+# Use absolute path for static files to work correctly on Vercel
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory="app/templates")
 @app.get("/", response_class=HTMLResponse)
 def web(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/favicon.ico", include_in_schema=False)
-def favicon():
-    return Response(status_code=204)
+
 
 @app.post("/predict/")
 def predict(payload: ChurnFeatures):
@@ -41,7 +52,7 @@ def predict(payload: ChurnFeatures):
         payload.credit_card,
         payload.active_member,
         payload.estimated_salary
-]], dtype=object)
+        ]], dtype=object)
 
     try: 
         pred = model.predict(X)[0]
