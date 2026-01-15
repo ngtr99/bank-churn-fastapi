@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi import HTTPException
-import numpy as np
+import pandas as pd
 
 from app.schemas import ChurnFeatures
 from app.model_loader import model
@@ -23,6 +23,7 @@ async def favicon():
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
+
 @app.get("/", response_class=HTMLResponse)
 def web(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -30,21 +31,9 @@ def web(request: Request):
 
 
 
-@app.post("/predict/")
+@app.post("/predict")
 def predict(payload: ChurnFeatures):
-    X = np.array([[
-        payload.customer_id,
-        payload.credit_score,
-        payload.country,
-        payload.gender,
-        payload.age,
-        payload.tenure,
-        payload.balance,
-        payload.products_number,
-        payload.credit_card,
-        payload.active_member,
-        payload.estimated_salary
-        ]], dtype=object)
+    X = pd.DataFrame([payload.dict()])
 
     try: 
         pred = model.predict(X)[0]
