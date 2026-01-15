@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi import Response
 from fastapi import HTTPException
-import pandas as pd
 
 from app.schemas import ChurnFeatures
 from app.model_loader import model
@@ -29,19 +28,19 @@ def favicon():
 
 @app.post("/predict/")
 def predict(payload: ChurnFeatures):
-    X = pd.DataFrame([payload.model_dump()], columns = [
-        "customer_id",
-        "credit_score",
-        "country",
-        "gender",
-        "age",
-        "tenure",
-        "balance",
-        "products_number",
-        "credit_card",
-        "active_member",
-        "estimated_salary"
-    ])
+    X = np.array([[
+        payload.customer_id,
+        payload.credit_score,
+        payload.country,
+        payload.gender,
+        payload.age,
+        payload.tenure,
+        payload.balance,
+        payload.products_number,
+        payload.credit_card,
+        payload.active_member,
+        payload.estimated_salary
+]], dtype=object)
 
     try: 
         pred = model.predict(X)[0]
