@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Bank Churn Prediction</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <h1>Bank Customer Churn Prediction</h1>
+  <p class="muted">Fill the form and click Predict.</p>
+
+  <form id="churn-form" class="card">
+    <div class="grid">
+      <div>
+        <label>Customer ID</label>
+        <input name="customer_id" type="number" value="15634602" required />
+      </div>
+      <div>
+        <label>Credit Score</label>
+        <input name="credit_score" type="number" value="619" required />
+      </div>
+
+      <div>
+        <label>Country</label>
+        <select name="country" required>
+          <option>France</option>
+          <option>Germany</option>
+          <option>Spain</option>
+        </select>
+      </div>
+      <div>
+        <label>Gender</label>
+        <select name="gender" required>
+          <option>Female</option>
+          <option>Male</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Age</label>
+        <input name="age" type="number" value="42" required />
+      </div>
+      <div>
+        <label>Tenure</label>
+        <input name="tenure" type="number" value="2" required />
+      </div>
+
+      <div>
+        <label>Balance</label>
+        <input name="balance" type="number" step="0.01" value="0" required />
+      </div>
+      <div>
+        <label>Products Number</label>
+        <input name="products_number" type="number" value="1" required />
+      </div>
+
+      <div>
+        <label>Credit Card (0/1)</label>
+        <input name="credit_card" type="number" min="0" max="1" value="1" required />
+      </div>
+      <div>
+        <label>Active Member (0/1)</label>
+        <input name="active_member" type="number" min="0" max="1" value="1" required />
+      </div>
+
+      <div>
+        <label>Estimated Salary</label>
+        <input name="estimated_salary" type="number" step="0.01" value="101348.88" required />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit">Predict</button>
+    </div>
+  </form>
+
+  <div id="output" class="card hidden">
+    <div class="result" id="result"></div>
+    <div class="muted" id="details"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("churn-form");
+    const output = document.getElementById("output");
+    const resultEl = document.getElementById("result");
+    const detailsEl = document.getElementById("details");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      const numericFields = [
+        "customer_id","credit_score","age","tenure","balance",
+        "products_number","credit_card","active_member","estimated_salary"
+      ];
+      numericFields.forEach(k => data[k] = Number(data[k]));
+
+      resultEl.textContent = "Predicting...";
+      detailsEl.textContent = "";
+      output.classList.remove("hidden");
+
+      try {
+        const res = await fetch("/predict", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(data)
+        });
+
+        const payload = await res.json();
+
+        if (!res.ok) {
+          resultEl.textContent = "Error";
+          detailsEl.textContent = payload.detail || JSON.stringify(payload);
+          return;
+        }
+
+        const pred = payload.churn_prediction;
+        const prob = payload.churn_probability;
+
+        resultEl.textContent =
+          pred === 1
+            ? "Churn: YES (customer likely to leave)"
+            : "Churn: NO (customer likely to stay)";
+
+        detailsEl.textContent =
+          prob == null
+            ? "Probability not available for this model."
+            : `Churn probability: ${prob}`;
+      } catch (err) {
+        resultEl.textContent = "Error";
+        detailsEl.textContent = String(err);
+      }
+    });
+  </script>
+</body>
+</html>
