@@ -1,14 +1,12 @@
 from fastapi import FastAPI
 from fastapi import HTTPException
 import pandas as pd
-import pandas as pd
 
 from app.schemas import ChurnFeatures
 from app.model_loader import model
 
 from fastapi import Request
-from fastapi import Response
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
