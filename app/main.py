@@ -16,10 +16,6 @@ app = FastAPI(title="Customer Churn Prediction API",
               description="An API that predicts customer churn using a pre-trained model.",
               version="1.0.0")
 
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    return Response(status_code=204)
-
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
