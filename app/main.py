@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi import Response
 from fastapi import HTTPException
+from numpy as np
 
 from app.schemas import ChurnFeatures
 from app.model_loader import model
