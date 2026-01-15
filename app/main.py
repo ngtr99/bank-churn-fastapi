@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi import HTTPException
 import pandas as pd
+import pandas as pd
 
 from app.schemas import ChurnFeatures
 from app.model_loader import model
@@ -21,6 +22,7 @@ app = FastAPI(title="Customer Churn Prediction API",
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
+
 @app.get("/", response_class=HTMLResponse)
 def web(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -28,6 +30,7 @@ def web(request: Request):
 
 @app.post("/predict")
 def predict(payload: ChurnFeatures):
+    X = pd.DataFrame([payload.dict()])
     X = pd.DataFrame([payload.dict()])
 
     try: 
