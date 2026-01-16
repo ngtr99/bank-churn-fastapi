@@ -2,3 +2,5 @@ Bank Customer Churn Prediction is a machine learning web application that predic
 
 
 https://bank-customer-churn-prediction.fly.dev/ 
+
+<img width="903" height="771" alt="image" src="https://github.com/user-attachments/assets/5e440a95-9e23-49dc-81ef-aa8e06b40943" />
