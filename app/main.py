@@ -1,14 +1,11 @@
-from fastapi import FastAPI
-from fastapi import HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 import pandas as pd
 
 from app.schemas import ChurnFeatures
 from app.model_loader import model
-
-from fastapi import Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 
 
 app = FastAPI(title="Customer Churn Prediction API",
@@ -28,14 +25,13 @@ def web(request: Request):
 
 @app.post("/predict")
 def predict(payload: ChurnFeatures):
-    X = pd.DataFrame([payload.dict()])
-    X = pd.DataFrame([payload.dict()])
-
+    X = pd.DataFrame([payload.model_dump()])
+    
     try: 
         pred = model.predict(X)[0]
     except Exception as e:
-        raise HTTPException (
-            status_code = 400,
+        raise HTTPException(
+            status_code=400,
             detail=f"Prediction error: {e}"
         )
     
