@@ -17,8 +17,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
+# Copy model file first (if model changes less frequently than code)
+COPY model.pkl .
+
 # Copy application code
-COPY . .
+COPY app/ ./app/
 
 # Expose port (Fly.io will map this)
 EXPOSE 8080
